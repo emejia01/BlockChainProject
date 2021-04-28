@@ -1,15 +1,18 @@
 from hashlib import sha256
 from Protocol import *
+from datetime import datetime
 
 
 class Node:
 
-    COUNTER = 0
-
-    def __init__(self):
-        self.UID = sha256(Node.COUNTER.encode("UTF-8")).hexdigest()
+    def __init__(self, FirstName, LastName, Email):
+        self.FirstName = FirstName
+        self.LastName = LastName
+        self.Email = Email
+        self.UID = sha256(datetime.now().encode("UTF-8")).hexdigest()
         self.balance = 0
         self.Blockchain = [] # TODO: Pull from GCP
+
 
     def verify(self, block):
         hashString = ''
@@ -24,5 +27,5 @@ class Node:
             return True
         return False
 
-        # self.hashRate = 0 # TODO: set by protocol class
-        # self.tempMemPool = [] # List of transactions made by this user
+    
+
