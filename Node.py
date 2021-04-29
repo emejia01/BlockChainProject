@@ -3,6 +3,7 @@ from Protocol import *
 from datetime import datetime
 
 
+
 class Node:
 
     def __init__(self, FirstName, LastName, Email):
@@ -27,5 +28,7 @@ class Node:
             return True
         return False
 
-    
+    # TODO: Trasact():
+    #  add transaction to Mempool
+    #   [UID, senderID, RecieverID, Amouont, Fee]
 

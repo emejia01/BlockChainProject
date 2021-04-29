@@ -20,6 +20,7 @@ class Protocol:
     def setDifficulty(self):
         # Time in seconds => 150 seconds is 2 mins, datetime subtraction returns time in seconds.
         self.Difficulty *= 150 / (self.Blockchain[-5].time - self.Blockchain[-1].time)
+        # TODO: post difficulty to GCP
 
 
 
@@ -31,6 +32,29 @@ class Protocol:
             if counter == len(self.Nodes) // 2:
                 return True
         return False
+
+
+    #TODO: getNodes():
+    # Gets all nodes from the GCP stored as list of Node Objects ( this list can include both Nodes and Miners)
+
+    # TODO: getMiners():
+    #  Gets all nodes from the GCP stored as list of Miner Objects
+
+    # TODO: getBlockChain():
+    #  Gets all Blocks from the GCP stored as list of Block Objects
+
+    # TODO: getMinedBlock():
+    #  Gets all the Temporary Mined Blocks from the GCP stored as list of Blocks Objects
+    #  OR grab Block with most transactions
+
+    # TODO: addMinedBlock():
+    #  Adds the mined block to the end of the blockchain
+    #  delete all temp Mined blocks
+
+    # TODO: updateMempool(theMinedBlock):
+    #  take data frrom theMinedBlock and remove the transactions from the GCP mempool
+
+
 
 
 

@@ -11,6 +11,5 @@ class Block:
         self.data = data
         self.previousHash = previousHash
         self.currentHash = None
-        self.nextBlock = None
 
 
