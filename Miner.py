@@ -1,13 +1,15 @@
-import Node
-import Protocol
+from BlockChainProject.Node import Node
+#import Protocol
 from datetime import datetime
+from hashlib import sha256
 
 
 class Miner(Node):
 
-    def __init__(self):
+    def __init__(self,FirstName, LastName, Email, UID=sha256(str(datetime.now()).encode("UTF-8")).hexdigest(), balance=10):
         self.hashRate = 0 # TODO: set by protocol class
         self.tempMemPool = [] # memPool that is going to be mined.
+        super(Miner, self).__init__(FirstName, LastName, Email, UID, balance)
 
 
     # TODO: GetMempool():
