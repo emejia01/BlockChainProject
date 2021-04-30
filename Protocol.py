@@ -1,3 +1,10 @@
+from google.cloud import datastore
+from BlockChainProject.Node import *
+import os
+
+# Create OS environment variable for GCP Credential
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/erikmejia/Desktop/blockchainproject-311018-0932eb94714c.json"
+
 # Class that makes all the magic happen, connect to GCP and talk to all the classes
 class Protocol:
 
@@ -34,8 +41,22 @@ class Protocol:
         return False
 
 
-    #TODO: getNodes():
-    # Gets all nodes from the GCP stored as list of Node Objects ( this list can include both Nodes and Miners)
+    # Gets all nodes from the GCP stored as list of Node Objects (this list can include both Nodes and Miners)
+    def getNodes(self):
+        # Get Nodes from GCP
+        client = datastore.Client()
+        query = client.query(kind="Nodes")
+        results = list(query.fetch())
+
+        # Format GCP data into Node Objects to return
+        nodes = []
+        for result in results:
+            result = dict(result)
+            FirstName, LastName, Email, UID, balance= result["FirstName"], result["LastName"], result["Email"], result["UID"], result["balance"]
+            currentNode = Node(FirstName=FirstName, LastName=LastName, Email=Email, UID=UID, balance=balance)
+            nodes.append(currentNode)
+
+        return nodes
 
     # TODO: getMiners():
     #  Gets all nodes from the GCP stored as list of Miner Objects
@@ -53,9 +74,4 @@ class Protocol:
 
     # TODO: updateMempool(theMinedBlock):
     #  take data frrom theMinedBlock and remove the transactions from the GCP mempool
-
-
-
-
-
 
