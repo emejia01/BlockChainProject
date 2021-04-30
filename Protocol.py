@@ -104,11 +104,24 @@ class Protocol:
 
         return blocks
 
-
-
-    # TODO: getMinedBlock():
     #  Gets all the Temporary Mined Blocks from the GCP stored as list of Blocks Objects
     #  OR grab Block with most transactions
+    def getMinedBlock(self):
+        # Get Blocks from GCP
+        client = datastore.Client()
+        query = client.query(kind="Mined Block")
+        query.order = ["-Transaction Count"]
+        result = list(query.fetch(limit=1))[0]
+
+        result = dict(result)
+        num, time, nonce, data, previousHash, currentHash = result["Num"], result["Time"], result["Nonce"], result["Data"], result["Previous Hash"], result["Current Hash"]
+        currentBlock = Block(nonce, data, previousHash)  # TODO: change block counter
+        currentBlock.num = num
+        currentBlock.time = time
+        currentBlock.currentHash = currentHash
+
+        return currentBlock
+
 
     # TODO: addMinedBlock():
     #  Adds the mined block to the end of the blockchain
