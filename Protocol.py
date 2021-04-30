@@ -1,6 +1,7 @@
 from google.cloud import datastore
 from BlockChainProject.Node import *
 from BlockChainProject.Miner import *
+from BlockChainProject.Block import *
 import os
 
 # Create OS environment variable for GCP Credential
@@ -56,6 +57,7 @@ class Protocol:
             result = dict(result)
             FirstName, LastName, Email, UID, balance = result["FirstName"], result["LastName"], result["Email"], result["UID"], result["balance"]
             currentNode = Node(FirstName=FirstName, LastName=LastName, Email=Email, UID=UID, balance=balance)
+
             nodes.append(currentNode)
 
         return nodes
@@ -76,13 +78,33 @@ class Protocol:
             currentMiner = Miner(FirstName=FirstName, LastName=LastName, Email=Email, UID=UID, balance=balance)
             currentMiner.hashRate = hashRate
             currentMiner.tempMemPool = tempMemPool
+
             miners.append(currentMiner)
 
         return miners
 
-
-    # TODO: getBlockChain():
     #  Gets all Blocks from the GCP stored as list of Block Objects
+    def getBlockChain(self):
+        # Get Blocks from GCP
+        client = datastore.Client()
+        query = client.query(kind="Blocks")
+        results = list(query.fetch())
+
+        # Format GCP data into Block Objects to return
+        blocks = []
+        for result in results:
+            result = dict(result)
+            num, time, nonce, data, previousHash, currentHash = result["num"], result["time"], result["nonce"], result["data"], result["previousHash"], result["currentHash"]
+            currentBlock = Block(nonce, data, previousHash) # TODO: change block counter
+            currentBlock.num = num
+            currentBlock.time = time
+            currentBlock.currentHash = currentHash
+
+            blocks.append(currentBlock)
+
+        return blocks
+
+
 
     # TODO: getMinedBlock():
     #  Gets all the Temporary Mined Blocks from the GCP stored as list of Blocks Objects
