@@ -1,0 +1,3 @@
+tim@gmail.com;1234;tim;2019-03-02
+theo1@gmail.com;123;theo;2021-04-30
+Erikm@gmail.com;123;Erik;2021-04-30
