@@ -1,5 +1,6 @@
 from google.cloud import datastore
 from BlockChainProject.Node import *
+from BlockChainProject.Miner import *
 import os
 
 # Create OS environment variable for GCP Credential
@@ -46,20 +47,39 @@ class Protocol:
         # Get Nodes from GCP
         client = datastore.Client()
         query = client.query(kind="Nodes")
+        query.add_filter("isMiner", "=", False)
         results = list(query.fetch())
 
         # Format GCP data into Node Objects to return
         nodes = []
         for result in results:
             result = dict(result)
-            FirstName, LastName, Email, UID, balance= result["FirstName"], result["LastName"], result["Email"], result["UID"], result["balance"]
+            FirstName, LastName, Email, UID, balance = result["FirstName"], result["LastName"], result["Email"], result["UID"], result["balance"]
             currentNode = Node(FirstName=FirstName, LastName=LastName, Email=Email, UID=UID, balance=balance)
             nodes.append(currentNode)
 
         return nodes
 
-    # TODO: getMiners():
     #  Gets all nodes from the GCP stored as list of Miner Objects
+    def getMiners(self):
+        # Get Miners from GCP
+        client = datastore.Client()
+        query = client.query(kind="Nodes")
+        query.add_filter("isMiner", "=", True)
+        results = list(query.fetch())
+
+        # Format GCP data into Miner Objects to return
+        miners = []
+        for result in results:
+            result = dict(result)
+            FirstName, LastName, Email, UID, balance, hashRate, tempMemPool = result["FirstName"], result["LastName"], result["Email"], result["UID"], result["balance"], result["hashRate"], result["tempMemPool"]
+            currentMiner = Miner(FirstName=FirstName, LastName=LastName, Email=Email, UID=UID, balance=balance)
+            currentMiner.hashRate = hashRate
+            currentMiner.tempMemPool = tempMemPool
+            miners.append(currentMiner)
+
+        return miners
+
 
     # TODO: getBlockChain():
     #  Gets all Blocks from the GCP stored as list of Block Objects
