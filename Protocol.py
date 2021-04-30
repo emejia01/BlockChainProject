@@ -113,6 +113,7 @@ class Protocol:
         query.order = ["-Transaction Count"]
         result = list(query.fetch(limit=1))[0]
 
+        # Format into Block Object
         result = dict(result)
         num, time, nonce, data, previousHash, currentHash = result["Num"], result["Time"], result["Nonce"], result["Data"], result["Previous Hash"], result["Current Hash"]
         currentBlock = Block(nonce, data, previousHash)  # TODO: change block counter
