@@ -123,11 +123,42 @@ class Protocol:
 
         return currentBlock
 
-
-    # TODO: addMinedBlock():
     #  Adds the mined block to the end of the blockchain
     #  delete all temp Mined blocks
+    def addMinedBlock(self, blockObj: Block):
+        # Add Block to GCP
+        client = datastore.Client()
+        key = client.key('Blocks', blockObj.num)
+        entity = datastore.Entity(key=key)
+        entity.update({
+            "currentHash": blockObj.currentHash,
+            "data": blockObj.data,
+            "nonce": blockObj.nonce,
+            "num": blockObj.num,
+            "previousHash": blockObj.previousHash,
+            "time": blockObj.time
+        })
+        client.put(entity)
 
-    # TODO: updateMempool(theMinedBlock):
-    #  take data frrom theMinedBlock and remove the transactions from the GCP mempool
+        # Clear all data from Mined Blocks Table
+        query = client.query(kind="Mined Block")
+        results = list(query.fetch())
 
+        for result in results:
+            client.delete(result.key)  # TODO: Test this line
+
+    #  take data from theMinedBlock and remove the transactions from the GCP mempool
+    def updateMempool(self, blockObj: Block):
+
+        blockTransactions = blockObj.data
+        client = datastore.Client()
+        mempoolKeysToDelete = set()
+
+        # Result Format: [UID, senderID, RecieverID, Amount, Fee]
+        for transaction in blockTransactions: #results:
+            key = client.key('Mempool', transaction[0])
+            mempoolKeysToDelete.add(key)
+
+        # Delete corresponding Transaction keys from the Mempool Table
+        for key in mempoolKeysToDelete:
+            client.delete(key)
