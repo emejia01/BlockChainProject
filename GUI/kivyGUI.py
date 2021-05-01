@@ -4,30 +4,41 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+
 from BlockChainProject.GUI.database import DataBase
 
 
-class CreateAccountWindow(Screen):
+class CreateVoterAccountWindow(Screen):
     namee = ObjectProperty(None)
     email = ObjectProperty(None)
     password = ObjectProperty(None)
 
-    def submit(self):
+    def submitVoter(self):
         if self.namee.text != "" and self.email.text != "" and self.email.text.count("@") == 1 and self.email.text.count(".") > 0:
             if self.password != "":
                 db.add_user(self.email.text, self.password.text, self.namee.text)
 
                 self.reset()
 
-                sm.current = "login"
+                sm.current = "voterLogin"
             else:
                 invalidForm()
         else:
             invalidForm()
 
-    def login(self):
-        self.reset()
-        sm.current = "login"
+    def submitMiner(self):
+        if self.namee.text != "" and self.email.text != "" and self.email.text.count("@") == 1 and self.email.text.count(".") > 0:
+            if self.password != "":
+                db.add_user(self.email.text, self.password.text, self.namee.text)
+
+                self.reset()
+
+                sm.current = "minerLogin"
+            else:
+                invalidForm()
+        else:
+            invalidForm()
+
 
     def reset(self):
         self.email.text = ""
@@ -35,7 +46,7 @@ class CreateAccountWindow(Screen):
         self.namee.text = ""
 
 
-class LoginWindow(Screen):
+class VoterLoginWindow(Screen):
     email = ObjectProperty(None)
     password = ObjectProperty(None)
 
@@ -49,11 +60,16 @@ class LoginWindow(Screen):
 
     def createBtn(self):
         self.reset()
-        sm.current = "create"
+        sm.current = "createVoter"
 
     def reset(self):
         self.email.text = ""
         self.password.text = ""
+
+class MinerLoginWindow(Screen):
+    uid = ObjectProperty(None)
+
+
 
 
 class MainWindow(Screen):
@@ -74,9 +90,20 @@ class MainWindow(Screen):
 
 
 class WelcomeWindow(Screen):
-    welcome = ObjectProperty(None)
+    wimg = ObjectProperty(None)
+    voterLogin = ObjectProperty(None)
+    minerLogin = ObjectProperty(None)
+    createAccnt = ObjectProperty(None)
 
 
+    def segueVoterLogin(self):
+        sm.current = 'voterLogin'
+
+    def seqgueMinerLogin(selfs):
+        sm.current = "minerLogin"
+
+    def segueCreateAccnt(self):
+        sm.current = "createVoter"
 
 
 
@@ -104,7 +131,7 @@ kv = Builder.load_file("my.kv")
 sm = WindowManager()
 db = DataBase("GUI/users.txt")
 
-screens = [WelcomeWindow(name="welcome"),LoginWindow(name="login"), CreateAccountWindow(name="create"),MainWindow(name="main")]
+screens = [WelcomeWindow(name="welcome"),VoterLoginWindow(name="voterLogin"), MinerLoginWindow(name="minerLogin"),CreateVoterAccountWindow(name="createVoter"),MainWindow(name="main")]
 for screen in screens:
     sm.add_widget(screen)
 

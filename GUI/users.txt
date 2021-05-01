@@ -1,3 +1,8 @@
 tim@gmail.com;1234;tim;2019-03-02
 theo1@gmail.com;123;theo;2021-04-30
 Erikm@gmail.com;123;Erik;2021-04-30
+tm@gmail.com;123;TheoM;2021-05-01
+theom722@gmail.com;123;TheoManavazian;2021-05-01
+theom123@gmail.com;123;Theo Manavazian;2021-05-01
+theo123@gmail.com;123;Theo1;2021-05-01
+erik1@gmail.com;123;erik;2021-05-01
