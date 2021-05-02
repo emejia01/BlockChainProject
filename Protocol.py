@@ -162,3 +162,27 @@ class Protocol:
         # Delete corresponding Transaction keys from the Mempool Table
         for key in mempoolKeysToDelete:
             client.delete(key)
+
+    # [transactionUID, self.UID, recieverID, self.balance]
+    def getMempool(self):
+        # get all transactions from Mempool table in GCP
+        client = datastore.Client()
+        query = client.query(kind="Mempool")
+        results = list(query.fetch())
+
+        allTransactions = []
+        for result in results:
+            result = dict(result)
+            transactionUID = result["UID"]
+            senderUID = result["senderID"]
+            recieverID = result["recieverID"]
+            transactionAmount = result["amount"]
+
+            currentTransaction = [transactionUID, senderUID, recieverID, transactionAmount]
+            allTransactions.append(currentTransaction)
+
+        return allTransactions
+
+# DRIVER CODE TO TEST METHOD
+protocol = Protocol()
+print("1st RUN", protocol.getMempool())
