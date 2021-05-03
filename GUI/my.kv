@@ -9,14 +9,15 @@
             pos: self.pos
             size: self.size
 
-    Image:
-        source: 'voterchain.png'
-        size: self.texture_size
-        pos_hint:{"x": 0.3, "top":.95}
-        size_hint:0.4, 0.4
-
 
     FloatLayout:
+        Image:
+            source: 'voterchain.png'
+            size: self.texture_size
+            pos_hint:{"x": 0.3, "top":.95}
+            size_hint:0.4, 0.4
+
+
         RoundedButton:
             id: voterLogin
             pos_hint:{"x": 0.3, "top":.45}
@@ -39,26 +40,6 @@
 
 
 
-
-
-
-
-<RoundedButton@Button>
-    background_color: 0,0,0,0
-    background_normal: ''
-    canvas:
-        Color:
-            rgba:(1,1,1,.1)
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: [58]
-
-<NiceText@TextInput>
-    background_color: 1,1,1,.05
-
-
-
 <CreateVoterAccountWindow>:
     name: "createVoter"
 
@@ -74,6 +55,18 @@
     password: password
 
     FloatLayout:
+
+
+        Button:
+            id: back
+            background_color: 1,1,1,.1
+            background_normal: 'back.png'
+            pos_hint:{"x": 0.025, "top":.925}
+            size_hint:0.075, 0.075
+            on_release:
+                root.manager.transition.direction = "left"
+                root.segueBack()
+
 
         Image:
             source: 'voterchainWords.png'
@@ -92,14 +85,14 @@
             id: namee
             hint_text: "Name"
             multiline: False
-            pos_hint: {"x": 0.3, "top":0.75}
+            pos_hint: {"x": 0.3, "top":0.65}
             size_hint: 0.4, 0.05
 
         NiceText:
             id: email
             hint_text: "Email"
             multiline: False
-            pos_hint: {"x": 0.3 , "top":0.65}
+            pos_hint: {"x": 0.3 , "top":0.55}
             size_hint: 0.4, 0.05
 
         NiceText:
@@ -107,7 +100,7 @@
             hint_text: "Password"
             multiline: False
             password: True
-            pos_hint: {"x": 0.3, "top":0.55}
+            pos_hint: {"x": 0.3, "top":0.45}
             size_hint: 0.4, 0.05
 
         RoundedButton:
@@ -135,6 +128,16 @@
     password: password
 
     FloatLayout:
+
+        Button:
+            id: back
+            background_color: 1,1,1,.1
+            background_normal: 'back.png'
+            pos_hint:{"x": 0.025, "top":.925}
+            size_hint:0.075, 0.075
+            on_release:
+                root.manager.transition.direction = "left"
+                root.segueBack()
 
         Image:
             source: 'voterchainWords.png'
@@ -188,6 +191,9 @@
     name: "main"
 
     bal: bal
+    dropdown: dropdown
+
+
     canvas.before:
         Color:
             rgba:(24/255,24/255,35/255,1)
@@ -199,22 +205,69 @@
 
     FloatLayout:
 
+        Image:
+            source: 'voterchainWords.png'
+            size: self.texture_size
+            pos_hint:{"x": 0.3, "top":.95}
+            size_hint:0.4, 0.05
+
         Label:
             id: bal
             text: "1"
             font_size: self.height
             pos_hint:{"x":0.375,"y":0.65}
-            size_hint: 0.25, 0.25
+            size_hint: 0.15, 0.175
             color: (112/255,52/255,121/255,1)
+            font_name: "Arial"
+
+        Label:
+            id: title
+            text: "Floyd Mayweather \n vs.\n Logan Paul"
+            halign: 'center'
+            valign: 'middle'
+            font_size: 28
+            pos_hint:{"x":0.4,"y":0.35}
+            size_hint: 0.2, 0.175
+            color: (1,1,1,1)
             font_name: "Arial"
 
 
         Image:
             source: 'vc.png'
             size: self.texture_size
-            pos_hint:{"x":0.35,"y":0.5}
-            size_hint: 0.3, 0.15
+            pos_hint:{"x":0.40,"y":0.67}
+            size_hint: 0.3, 0.12
             allow_stretch: True
+
+
+
+        Image:
+            source: 'Floyd.png'
+            pos_hint:{"x":0.2,"y":0.35}
+            size_hint: 0.15, 0.15
+            allow_stretch: True
+
+
+
+        Image:
+            source: 'Logan.png'
+            pos_hint:{"x":0.62,"y":0.35}
+            size_hint: 0.15, 0.15
+
+
+        Spinner:
+            id: dropdown
+            text: "Select Option"
+            values: ["Floyd Mayweather", "Logan Paul"]
+
+            on_text: root.spinner_clicked(dropdown.text)
+            pos_hint:{"x":0.4,"y":0.2}
+            size_hint: 0.2, 0.10
+            canvas:
+                Color:
+                    rgba:(1,1,1,.1)
+
+
 
         RoundedButton:
             pos_hint:{"x":0.3,"y":0.05}
@@ -223,3 +276,35 @@
             on_release:
                 root.manager.transition.direction = "right"
                 root.submitVote()
+
+
+<RoundedButton@Button>
+    background_color: 0,0,0,0
+    background_normal: ''
+    canvas:
+        Color:
+            rgba:(1,1,1,.1)
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [58]
+
+<NiceText@TextInput>
+    background_color: 1,1,1,.05
+    on_text: self.foreground_color = (3/255,123/255,143/255,1)##blue
+
+
+<Popups>
+    Label:
+        text: "Are you sure you want to cast this vote?\n this action cannot be undone!"
+        size_hint: 0.6, 0.2
+        pos_hint: {"x":0.2, "top":1}
+
+    RoundedButton:
+        text: "Yes"
+        # set size of the button
+        size_hint: .2, 0.1
+        # set position of the button
+        pos_hint: {"x":.4, "y":0.1}
+        on_release:
+            root.main.createTransaction()

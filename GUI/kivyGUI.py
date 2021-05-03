@@ -1,8 +1,10 @@
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, FloatLayout
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
+from kivy.uix.button import Button
+
 from kivy.uix.label import Label
 
 from BlockChainProject.GUI.database import DataBase
@@ -63,6 +65,8 @@ class CreateVoterAccountWindow(Screen):
         self.email.text = ""
         self.password.text = ""
         self.namee.text = ""
+    def segueBack(self):
+        sm.current = 'welcome'
 
 
 
@@ -103,31 +107,63 @@ class VoterLoginWindow(Screen):
         self.email.text = ""
         self.password.text = ""
 
-
+    def segueBack(self):
+        sm.current = 'welcome'
 
 
 
 class MainWindow(Screen):
 
+    class Popups(FloatLayout):
+
+
+
+        pass
+
     bal = ObjectProperty(None)
+    dropdown = ObjectProperty(None)
 
     def logOut(self):
         sm.current = "login"
 
-
     def submitVote(self):
-        self.bal.text ='0'
 
-        pop = Popup(title='Vote',
-                    content=Label(text='Your Vote has been recorded, Thank you'),
-                    size_hint=(None, None), size=(600, 600))
 
-        pop.open()
+        if self.bal.text == '0':
+            notEnoughTokems()
+            return
+
+
+        content = FloatLayout()
+        self.popup = Popup(title='Are you sure you want to cast this vote? \n this cannot be undone',
+                    content=content,
+                    size_hint=(None, None),
+                    size=(600, 600),
+                    title_align='center')
+
+        button = Button(text="Yes",
+                        size_hint=(0.6, 0.2),
+                        pos_hint={"x": .2, "y": 0.1},
+                        on_press=self.createTransaction,
+                        on_release=self.popup.dismiss)
+        content.add_widget(button)
+        self.popup.open()
+
+    def createTransaction(self,val):
+        self.bal.text = '0'
+        print(self.selection)
+        #Create selection
+
+    def spinner_clicked(self, value=''):
+        self.selection = value
+
+
 
 
 
 
 class WelcomeWindow(Screen):
+
     wimg = ObjectProperty(None)
     voterLogin = ObjectProperty(None)
     createAccnt = ObjectProperty(None)
@@ -163,6 +199,13 @@ def invalidForm():
     pop = Popup(title='Invalid Form',
                   content=Label(text='Please fill in all inputs with valid information.'),
                   size_hint=(None, None), size=(400, 400))
+
+    pop.open()
+
+def notEnoughTokems():
+    pop = Popup(title='Not Enough Tokens!',
+                  content=Label(text='You dont have enough Tokens to vote!.'),
+                  size_hint=(None, None), size=(600, 600))
 
     pop.open()
 

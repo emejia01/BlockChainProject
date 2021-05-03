@@ -50,7 +50,7 @@ class Miner(Node):
     # make it so a miners hash rate updates every 5 blocks
     def mine(self):
         return
-        # TODO: tempMemPool  = CreatesRandomMempool()
+        # TODO: tempMemPool  = CreatesRandomMempool(self.mempool)
         # TODO: Random Nonce
         # TODO: Create Block(tempMempool, Nonce)
         # TODO: block.verify()
