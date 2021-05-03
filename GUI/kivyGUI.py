@@ -19,6 +19,7 @@ class CreateVoterAccountWindow(Screen):
     email = ObjectProperty(None)
     password = ObjectProperty(None)
 
+
     def submitVoter(self):
         if self.namee.text != "" and self.email.text != "" and self.email.text.count("@") == 1 and self.email.text.count(".") > 0:
             if self.password != "":
@@ -58,13 +59,12 @@ class CreateVoterAccountWindow(Screen):
         else:
             invalidForm()
 
-
-
-
     def reset(self):
         self.email.text = ""
         self.password.text = ""
         self.namee.text = ""
+
+
 
 
 class VoterLoginWindow(Screen):
@@ -103,41 +103,39 @@ class VoterLoginWindow(Screen):
         self.email.text = ""
         self.password.text = ""
 
-class MinerLoginWindow(Screen):
-    uid = ObjectProperty(None)
 
 
 
 
 class MainWindow(Screen):
-    n = ObjectProperty(None)
-    created = ObjectProperty(None)
-    email = ObjectProperty(None)
-    current = ""
+
+    bal = ObjectProperty(None)
 
     def logOut(self):
         sm.current = "login"
 
-    def on_enter(self, *args):
-        password, name, created = db.get_user(self.current)
-        self.n.text = "Account Name: " + name
-        self.email.text = "Email: " + self.current
-        self.created.text = "Created On: " + created
+
+    def submitVote(self):
+        self.bal.text ='0'
+
+        pop = Popup(title='Vote',
+                    content=Label(text='Your Vote has been recorded, Thank you'),
+                    size_hint=(None, None), size=(600, 600))
+
+        pop.open()
+
 
 
 
 class WelcomeWindow(Screen):
     wimg = ObjectProperty(None)
     voterLogin = ObjectProperty(None)
-    minerLogin = ObjectProperty(None)
     createAccnt = ObjectProperty(None)
 
 
     def segueVoterLogin(self):
         sm.current = 'voterLogin'
 
-    def seqgueMinerLogin(selfs):
-        sm.current = "minerLogin"
 
     def segueCreateAccnt(self):
         sm.current = "createVoter"
@@ -146,6 +144,12 @@ class WelcomeWindow(Screen):
 
 class WindowManager(ScreenManager):
     pass
+
+def invalidUser():
+    pop = Popup(title='Invalid User',
+                  content=Label(text='User already Exists!'),
+                  size_hint=(None, None), size=(400, 400))
+    pop.open()
 
 
 def invalidLogin():
@@ -175,22 +179,32 @@ def insertError():
 
     pop.open()
 
+def insertError():
+    pop = Popup(title='Insert Error',
+                  content=Label(text='Oops! Something went wrong. Try again'),
+                  size_hint=(None, None), size=(600, 600))
+
+    pop.open()
+
+
+
+
 kv = Builder.load_file("my.kv")
 
 sm = WindowManager()
 #db = DataBase("")
 
-screens = [WelcomeWindow(name="welcome"),VoterLoginWindow(name="voterLogin"), MinerLoginWindow(name="minerLogin"),CreateVoterAccountWindow(name="createVoter"),MainWindow(name="main")]
+screens = [WelcomeWindow(name="welcome"),VoterLoginWindow(name="voterLogin"),CreateVoterAccountWindow(name="createVoter"),MainWindow(name="main")]
 for screen in screens:
     sm.add_widget(screen)
 
 sm.current = "welcome"
 
 
-class MyMainApp(App):
+class VoterChainApp(App):
     def build(self):
         return sm
 
 
 if __name__ == "__main__":
-    MyMainApp().run()
+    VoterChainApp().run()
