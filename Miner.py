@@ -13,7 +13,7 @@ class Miner(Node):
 
 
     # TODO: GetMempool():
-    #  going to be run every iteration of the mine() loop. List of "transactions" its rerally just a list of lists in the format:
+    #  Gets entire Mempool, going to be run every iteration of the mine() loop. List of "transactions" its rerally just a list of lists in the format:
     #   [UID, senderID, RecieverID, Amouont, Fee]
 
 
@@ -22,7 +22,7 @@ class Miner(Node):
     # make it so a miners hash rate updates every 5 blocks
     def mine(self):
         return
-        # TODO: tempMemPool  = CreatesRandomMempool()
+        # TODO: tempMemPool  = CreatesRandomMempool(self.mempool)
         # TODO: Random Nonce
         # TODO: Create Block(tempMempool, Nonce)
         # TODO: block.verify()
