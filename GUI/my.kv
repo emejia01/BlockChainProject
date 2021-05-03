@@ -19,7 +19,7 @@
     FloatLayout:
         RoundedButton:
             id: voterLogin
-            pos_hint:{"x": 0.3, "top":.6}
+            pos_hint:{"x": 0.3, "top":.45}
             size_hint:0.4, 0.1
             text: "Voter Login"
             on_release:
@@ -35,6 +35,8 @@
             on_release:
                 root.manager.transition.direction = "left"
                 root.segueCreateAccnt()
+
+
 
 
 
@@ -183,10 +185,9 @@
 
 
 <MainWindow>:
-    n: n
-    email: email
-    created:created
+    name: "main"
 
+    bal: bal
     canvas.before:
         Color:
             rgba:(24/255,24/255,35/255,1)
@@ -197,28 +198,28 @@
 
 
     FloatLayout:
-        Label:
-            id: n
-            pos_hint:{"x": 0.1, "top":0.9}
-            size_hint:0.8, 0.2
-            text: "Account Name: "
 
         Label:
-            id: email
-            pos_hint:{"x": 0.1, "top":0.7}
-            size_hint:0.8, 0.2
-            text: "Email: "
+            id: bal
+            text: "1"
+            font_size: self.height
+            pos_hint:{"x":0.375,"y":0.65}
+            size_hint: 0.25, 0.25
+            color: (112/255,52/255,121/255,1)
+            font_name: "Arial"
 
-        Label:
-            id: created
-            pos_hint:{"x": 0.1, "top":0.5}
-            size_hint:0.8, 0.2
-            text: "Created: "
 
-        Button:
-            pos_hint:{"x":0.2, "y": 0.1}
-            size_hint:0.6,0.2
-            text: "Log Out"
+        Image:
+            source: 'vc.png'
+            size: self.texture_size
+            pos_hint:{"x":0.35,"y":0.5}
+            size_hint: 0.3, 0.15
+            allow_stretch: True
+
+        RoundedButton:
+            pos_hint:{"x":0.3,"y":0.05}
+            size_hint: 0.4, 0.1
+            text: "Submit Vote"
             on_release:
-                app.root.current = "login"
-                root.manager.transition.direction = "down"
+                root.manager.transition.direction = "right"
+                root.submitVote()
