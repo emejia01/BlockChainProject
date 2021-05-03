@@ -166,11 +166,6 @@ def invalidForm():
 
     pop.open()
 
-def invalidUser():
-    pop = Popup(title='Invalid User',
-                  content=Label(text='User already Exists!'),
-                  size_hint=(None, None), size=(400, 400))
-    pop.open()
 
 def insertError():
     pop = Popup(title='Insert Error',
@@ -179,12 +174,6 @@ def insertError():
 
     pop.open()
 
-def insertError():
-    pop = Popup(title='Insert Error',
-                  content=Label(text='Oops! Something went wrong. Try again'),
-                  size_hint=(None, None), size=(600, 600))
-
-    pop.open()
 
 
 
