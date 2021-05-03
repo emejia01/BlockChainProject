@@ -1,6 +1,6 @@
 from google.cloud import datastore
-from BlockChainProject.Node import *
-from BlockChainProject.Miner import *
+from BlockChainProject.Node import Node
+from BlockChainProject.Miner import Miner
 from BlockChainProject.Block import *
 import os
 
@@ -44,7 +44,8 @@ class Protocol:
 
 
     # Gets all nodes from the GCP stored as list of Node Objects (this list can include both Nodes and Miners)
-    def getNodes(self):
+    @staticmethod
+    def getNodes():
         # Get Nodes from GCP
         client = datastore.Client()
         query = client.query(kind="Nodes")
@@ -63,7 +64,8 @@ class Protocol:
         return nodes
 
     #  Gets all nodes from the GCP stored as list of Miner Objects
-    def getMiners(self):
+    @staticmethod
+    def getMiners():
         # Get Miners from GCP
         client = datastore.Client()
         query = client.query(kind="Nodes")
@@ -84,7 +86,8 @@ class Protocol:
         return miners
 
     #  Gets all Blocks from the GCP stored as list of Block Objects
-    def getBlockChain(self):
+    @staticmethod
+    def getBlockChain():
         # Get Blocks from GCP
         client = datastore.Client()
         query = client.query(kind="Blocks")
@@ -106,7 +109,8 @@ class Protocol:
 
     #  Gets all the Temporary Mined Blocks from the GCP stored as list of Blocks Objects
     #  OR grab Block with most transactions
-    def getMinedBlock(self):
+    @staticmethod
+    def getMinedBlock():
         # Get Blocks from GCP
         client = datastore.Client()
         query = client.query(kind="Mined Block")
@@ -125,7 +129,8 @@ class Protocol:
 
     #  Adds the mined block to the end of the blockchain
     #  delete all temp Mined blocks
-    def addMinedBlock(self, blockObj: Block):
+    @staticmethod
+    def addMinedBlock(blockObj: Block):
         # Add Block to GCP
         client = datastore.Client()
         key = client.key('Blocks', blockObj.num)
@@ -148,8 +153,8 @@ class Protocol:
             client.delete(result.key)  # TODO: Test this line
 
     #  take data from theMinedBlock and remove the transactions from the GCP mempool
-    def updateMempool(self, blockObj: Block):
-
+    @staticmethod
+    def updateMempool(blockObj: Block):
         blockTransactions = blockObj.data
         client = datastore.Client()
         mempoolKeysToDelete = set()
