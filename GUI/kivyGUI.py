@@ -8,7 +8,13 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 
 from BlockChainProject.GUI.database import DataBase
+from google.cloud import datastore
 
+from BlockChainProject.Node import Node
+from hashlib import sha256
+import os
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/erikmejia/Desktop/blockchainproject-311018-0932eb94714c.json"
 
 class CreateVoterAccountWindow(Screen):
     namee = ObjectProperty(None)
@@ -19,16 +25,41 @@ class CreateVoterAccountWindow(Screen):
     def submitVoter(self):
         if self.namee.text != "" and self.email.text != "" and self.email.text.count("@") == 1 and self.email.text.count(".") > 0:
             if self.password != "":
-                db.add_user(self.email.text, self.password.text, self.namee.text)
 
-                self.reset()
+                # Check DB to see if email is already in use
+                client = datastore.Client()
+                query = client.query(kind="Nodes")
+                query.add_filter("Email", "=", self.namee.text)
+                result = list(query.fetch())
 
-                sm.current = "voterLogin"
+                if len(result) > 0:
+                    invalidUser()
+                else:
+                    # Add to GCP
+                    firstName, lastName = self.namee.text.split(" ")
+                    currentNode = Node(firstName, lastName, self.email.text)
+                    key = client.key('Nodes', currentNode.UID)
+                    entity = datastore.Entity(key=key)
+
+                    entity.update({
+                        "FirstName": currentNode.FirstName,
+                        "LastName": currentNode.LastName,
+                        "Email": currentNode.Email,
+                        "UID": currentNode.UID,
+                        "balance": currentNode.balance,
+                        "Blockchain": currentNode.Blockchain,
+                        "isMiner": False,
+                        "PASSWORD_HASH": sha256(self.password.text.encode("UTF-8")).hexdigest()
+                    })
+
+                    client.put(entity)
+                    self.reset()
+                    sm.current = "voterLogin"
+
             else:
                 invalidForm()
         else:
             invalidForm()
-
 
     def reset(self):
         self.email.text = ""
@@ -45,10 +76,26 @@ class VoterLoginWindow(Screen):
     password = ObjectProperty(None)
 
     def loginBtn(self):
-        if db.validate(self.email.text, self.password.text):
-            MainWindow.current = self.email.text
+
+        # Check DB to see if email is already in use
+        client = datastore.Client()
+        query = client.query(kind="Nodes")
+        query.add_filter("Email", "=", self.email.text)
+        query.add_filter("PASSWORD_HASH", "=", sha256(self.password.text.encode("UTF-8")).hexdigest())
+        result = list(query.fetch())
+
+        if len(result) == 1:
+            result = dict(result[0])
+            firstName, lastName, email = result["FirstName"], result["LastName"], result["Email"]
+            currentNode = Node(firstName, lastName, email)
+            currentNode.UID = result["UID"]
+            currentNode.balance = result["balance"]
+            currentNode.Blockchain = result["Blockchain"]
+            print(currentNode)
+
             self.reset()
             sm.current = "main"
+
         else:
             invalidLogin()
 
@@ -173,10 +220,11 @@ def insertError():
 
 
 
+
 kv = Builder.load_file("my.kv")
 
 sm = WindowManager()
-db = DataBase("GUI/users.txt")
+#db = DataBase("")
 
 screens = [WelcomeWindow(name="welcome"),VoterLoginWindow(name="voterLogin"),CreateVoterAccountWindow(name="createVoter"),MainWindow(name="main")]
 for screen in screens:
