@@ -1,3 +1,184 @@
+<VisualizerWindow>:
+    name: "visualize"
+
+    canvas.before:
+        Color:
+            rgba:(24/255,24/255,35/255,1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    l1T: l1T
+    l2T: l2T
+    l3T: l3T
+    l4T: l4T
+    l5T: l5T
+    l6T: l6T
+    l7T: l7T
+    l8T: l8T
+    l9T: l9T
+    l10T: l10T
+
+    l1B: l1B
+    l2B: l2B
+    l3B: l3B
+    l4B: l4B
+    l5B: l5B
+    l6B: l6B
+
+    searchNum: searchNum
+
+
+    FloatLayout:
+        Button:
+            id: back
+            background_color: 1,1,1,.1
+            background_normal: 'back.png'
+            pos_hint:{"x": 0.025, "top":.925}
+            size_hint:0.075, 0.075
+            on_release:
+                root.manager.transition.direction = "left"
+                root.segueBack()
+
+
+
+        Label:
+            id: mempoolHeader
+            pos_hint:{"x": 0.1, "top":0.85}
+            size_hint:0.2, 0.1
+            text: "Mempool\n\n UID,  SenderID,  RecieverID,  Amnt,  Fee"
+            color: (3/255,123/255,143/255,1)
+            halign: 'center'
+            valign: 'middle'
+
+        Label:
+            id: blockHeader
+            pos_hint:{"x": 0.6 , "top":0.95}
+            size_hint:0.2, 0.1
+            text: "Block Lookup"
+            color: (3/255,123/255,143/255,1)
+            halign: 'center'
+            valign: 'middle'
+
+        NiceText:
+            id: searchNum
+            pos_hint:{"x": 0.6 , "top":0.85}
+            size_hint:0.2, 0.05
+            hint_text: "Num"
+
+        RoundedButton:
+            id: search
+            pos_hint:{"x": 0.65 , "top":0.78}
+            size_hint:0.1, 0.05
+            text: "Search"
+            on_release:
+                root.searchBlock()
+
+
+
+        Label:
+            id: l1B
+            pos_hint:{"x": 0.6, "top":0.75}
+            size_hint:0.2, 0.1
+            color: (112/255,52/255,121/255,1)
+
+            text:
+        Label:
+            id: l2B
+            pos_hint:{"x": 0.6, "top":0.7}
+            size_hint:0.2, 0.1
+            color: (3/255,123/255,143/255,1)
+            text:
+        Label:
+            id: l3B
+            pos_hint:{"x": 0.6, "top":0.65}
+            size_hint:0.2, 0.1
+            color: (112/255,52/255,121/255,1)
+            text:
+        Label:
+            id: l4B
+            pos_hint:{"x": 0.6, "top":0.60}
+            size_hint:0.2, 0.1
+            color: (3/255,123/255,143/255,1)
+            text:
+        Label:
+            id: l5B
+            pos_hint:{"x": 0.6, "top":0.55}
+            size_hint:0.2, 0.1
+            color: (112/255,52/255,121/255,1)
+            text:
+        Label:
+            id: l6B
+            pos_hint:{"x": 0.6, "top":0.50}
+            size_hint:0.2, 0.1
+            color: (3/255,123/255,143/255,1)
+            text:
+
+
+
+        Label:
+            id: l1T
+            pos_hint:{"x": 0.1, "top":0.75}
+            size_hint:0.2, 0.1
+            color: (112/255,52/255,121/255,1)
+
+            text:
+        Label:
+            id: l2T
+            pos_hint:{"x": 0.1, "top":0.7}
+            size_hint:0.2, 0.1
+            color: (3/255,123/255,143/255,1)
+            text:
+        Label:
+            id: l3T
+            pos_hint:{"x": 0.1, "top":0.65}
+            size_hint:0.2, 0.1
+            color: (112/255,52/255,121/255,1)
+            text:
+        Label:
+            id: l4T
+            pos_hint:{"x": 0.1, "top":0.60}
+            size_hint:0.2, 0.1
+            color: (3/255,123/255,143/255,1)
+            text:
+        Label:
+            id: l5T
+            pos_hint:{"x": 0.1, "top":0.55}
+            size_hint:0.2, 0.1
+            color: (112/255,52/255,121/255,1)
+            text:
+        Label:
+            id: l6T
+            pos_hint:{"x": 0.1, "top":0.50}
+            size_hint:0.2, 0.1
+            color: (3/255,123/255,143/255,1)
+            text:
+        Label:
+            id: l7T
+            pos_hint:{"x": 0.1, "top":0.45}
+            size_hint:0.2, 0.1
+            color: (112/255,52/255,121/255,1)
+            text:
+        Label:
+            id: l8T
+            pos_hint:{"x": 0.1, "top":0.40}
+            size_hint:0.2, 0.1
+            color: (3/255,123/255,143/255,1)
+            text:
+        Label:
+            id: l9T
+            pos_hint:{"x": 0.1, "top":0.35}
+            size_hint:0.2, 0.1
+            color: (112/255,52/255,121/255,1)
+            text:
+        Label:
+            id: l10T
+            pos_hint:{"x": 0.1, "top":0.30}
+            size_hint:0.2, 0.1
+            color: (3/255,123/255,143/255,1)
+            text:
+
+
 
 <WelcomeWindow>:
     name: "welcome"
@@ -36,6 +217,15 @@
             on_release:
                 root.manager.transition.direction = "left"
                 root.segueCreateAccnt()
+
+        RoundedButton:
+            id: goVisual
+            pos_hint:{"x": 0.3, "top":.15}
+            size_hint:0.4, 0.1
+            text: "Visualizer"
+            on_release:
+                root.manager.transition.direction = "left"
+                root.segueVisualizer()
 
 
 
@@ -115,6 +305,7 @@
 
 
 <VoterLoginWindow>:
+    id: "voter"
     name: "voterLogin"
 
     canvas.before:
@@ -188,6 +379,7 @@
 
 
 <MainWindow>:
+    id: "mainW"
     name: "main"
 
     bal: bal
@@ -204,7 +396,15 @@
 
 
     FloatLayout:
-
+        Button:
+            id: back
+            background_color: 1,1,1,.1
+            background_normal: 'back.png'
+            pos_hint:{"x": 0.025, "top":.925}
+            size_hint:0.075, 0.075
+            on_release:
+                root.manager.transition.direction = "right"
+                root.segueBack()
         Image:
             source: 'voterchainWords.png'
             size: self.texture_size
@@ -213,7 +413,7 @@
 
         Label:
             id: bal
-            text: "1"
+            text: ''
             font_size: self.height
             pos_hint:{"x":0.375,"y":0.65}
             size_hint: 0.15, 0.175
@@ -222,7 +422,7 @@
 
         Label:
             id: title
-            text: "Floyd Mayweather \n vs.\n Logan Paul"
+            text: "Bitcoin \n vs.\n Ethereum"
             halign: 'center'
             valign: 'middle'
             font_size: 28
@@ -242,7 +442,7 @@
 
 
         Image:
-            source: 'Floyd.png'
+            source: 'bitcoin.png'
             pos_hint:{"x":0.2,"y":0.35}
             size_hint: 0.15, 0.15
             allow_stretch: True
@@ -250,7 +450,7 @@
 
 
         Image:
-            source: 'Logan.png'
+            source: 'ethereum.png'
             pos_hint:{"x":0.62,"y":0.35}
             size_hint: 0.15, 0.15
 
@@ -258,7 +458,7 @@
         Spinner:
             id: dropdown
             text: "Select Option"
-            values: ["Floyd Mayweather", "Logan Paul"]
+            values: ["Bitcoin", "Ethereum"]
 
             on_text: root.spinner_clicked(dropdown.text)
             pos_hint:{"x":0.4,"y":0.2}

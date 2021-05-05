@@ -1,4 +1,4 @@
-from Block import *
+from BlockChainProject.Block import *
 
 # Chain Structure to hold sequence of Blocks(nodes)
 class Blockchain:

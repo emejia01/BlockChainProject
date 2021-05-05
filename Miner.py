@@ -3,10 +3,9 @@ from google.cloud import datastore
 from datetime import datetime
 from hashlib import sha256
 from random import randint
-import os
+import BlockChainProject.config
 
 # Create OS environment variable for GCP Credential
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/erikmejia/Desktop/blockchainproject-311018-0932eb94714c.json"
 
 class Miner(Node):
 
