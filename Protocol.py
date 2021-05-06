@@ -263,6 +263,7 @@ class Protocol:
         while True:
             if len(self.tempMempool) == 0:
                 sleep(10)
+                self.createRandomMempool()
                 continue
 
             if nonce == m.hashRate:
