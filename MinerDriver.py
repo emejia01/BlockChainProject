@@ -1,12 +1,13 @@
 from BlockChainProject.Miner import Miner
+from BlockChainProject.Protocol import Protocol
+
 
 m = Miner()
 m.hashRate = 100000
-m.mine()
+protocol = Protocol()
 
-#from BlockChainProject.Protocol import Protocol
-#from BlockChainProject.Block import Block
+protocol.mine(m)
 
-#x = Block(data="2111", nonce="99",previousHash="123")
-#x.num = 1
-#Protocol.addMinedBlock(x)
+
+# TODO: PRINT MEMPOOL AFTER MINING TO SEE WHY TRANSACTIONS ARE STILL SHOWING UP WHEN THEY ARENT IN MEMPOOL
+# TODO: MAKE BLOCK POINT TO PREV HASH --> SHOULD BE EASY.

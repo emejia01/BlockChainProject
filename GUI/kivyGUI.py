@@ -31,7 +31,6 @@ def getCurrentNode(email, password):
         currentNode = Node(firstName, lastName, email)
         currentNode.UID = result["UID"]
         currentNode.balance = result["balance"]
-        currentNode.Blockchain = result["Blockchain"]
 
         return currentNode
     else:
@@ -93,8 +92,6 @@ class CreateVoterAccountWindow(Screen):
                         "Email": currentNode.Email,
                         "UID": currentNode.UID,
                         "balance": currentNode.balance,
-                        "Blockchain": currentNode.Blockchain,
-                        "isMiner": False,
                         "PASSWORD_HASH": sha256(self.password.text.encode("UTF-8")).hexdigest()
                     })
 
@@ -230,9 +227,16 @@ class MainWindow(Screen):
         content.add_widget(button)
         self.popup.open()
 
-    def createTransaction(self,val):
+    def createTransaction(self, val):
+        p = Protocol()
+
         # self.bal.text = '0' -> bal will auto set to 0 once the block its apart of is mined
-        NODE.Trasact(self.selection)
+        if self.selection == 'Bitcoin':
+            rec = '124d0d8d47c3f4eddfa27c8004057d9f57fe52b76ec7e6c2c27d7c570ef984c1'
+        else:
+            rec = '15b8ec7d599c752a65a324c25558be720a3db5a7f80d20a7340baaa8bb21f64d'
+
+        p.Trasact(NODE.UID,rec)
         print(self.selection)
 
     def spinner_clicked(self, value=''):

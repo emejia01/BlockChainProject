@@ -1,10 +1,13 @@
 from hashlib import sha256
 from datetime import datetime
 from google.cloud import datastore
+from BlockChainProject.Block import Block
+
 import os
 
+
 # Create OS environment variable for GCP Credential
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/erikmejia/Desktop/blockchainproject-311018-0932eb94714c.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/theomanavazian/Desktop/blockchainproject-311018-0932eb94714c.json"
 
 
 class Node:
@@ -15,33 +18,18 @@ class Node:
         self.Email = Email
         self.UID = UID
         self.balance = balance
-        self.Blockchain = Protocol.getBlockChain() # TODO: Pull from GCP
+        self.Blockchain = self.getBlockChain() # TODO: Pull from GCP
 
 
     @staticmethod
     def verify(block, UID):
 
-        if block.currentHash.startswith('0' * Protocol.Difficulty):
-            print(str(UID) + "Verified Block")
+        if block.currentHash.startswith('0' * 1):
+            print(str(UID) + " Verified Block")
             return True
         return False
 
-    # Add transaction to Mempool
-    def Trasact(self, recieverID):
 
-        transactionUID = sha256(str(datetime.now()).encode("UTF-8")).hexdigest()
-        client = datastore.Client()
-        key = client.key('Mempool', transactionUID)
-        entity = datastore.Entity(key=key)
-        entity.update({
-            "UID": transactionUID,
-            "senderID": self.UID,
-            "recieverID": recieverID,
-            "amount": 1,
-            "fee": .02,
-            "data": str(transactionUID) + "," + str(self.UID) + "," + str(recieverID) + "," + str(1) + "," + str(.02)
-        })
-        client.put(entity)
 
         # Update Node balance
         #self.balance = 0 # we update only when the block that has this transaction is mined
@@ -54,7 +42,24 @@ class Node:
         print('Bal',self.balance)
 
 
+    @staticmethod
+    def getBlockChain():
+        # Get Blocks from GCP
+        client = datastore.Client()
+        query = client.query(kind="Blocks")
+        query.order = ["time"]
+        results = list(query.fetch())
 
+        # Format GCP data into Block Objects to return
+        blocks = []
+        for result in results:
+            result = dict(result)
+            num, time, nonce, data, previousHash, currentHash = result["num"], result["time"], result["nonce"], result["data"], result["previousHash"], result["currentHash"]
+            currentBlock = Block(nonce, data, previousHash) # TODO: change block counter
+            currentBlock.num = num
+            currentBlock.time = time
+            currentBlock.currentHash = currentHash
 
-#keep here
-from BlockChainProject.Protocol import *
+            blocks.append(currentBlock)
+
+        return blocks
