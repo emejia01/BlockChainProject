@@ -12,7 +12,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/theomanavazian/Desktop/bl
 client = datastore.Client()
 p = Protocol()
 
-for i in range(2):
+for i in range(3):
     p.Trasact('230dfcc1626f38aab15c4dc6b866844f616c5346d0b4c0c1af40c75edc772ded', "15b8ec7d599c752a65a324c25558be720a3db5a7f80d20a7340baaa8bb21f64d")
     p.Trasact('38773e6fde3457d0ecd9db2efda31f9bebf3e9a2a6e9afc3565c29a96b1334d2', "15b8ec7d599c752a65a324c25558be720a3db5a7f80d20a7340baaa8bb21f64d")
     p.Trasact('45c801a925fe4dd7207dd357441ed25bdbdc27adfade11dc890b8f4a64c8caa0', "15b8ec7d599c752a65a324c25558be720a3db5a7f80d20a7340baaa8bb21f64d")

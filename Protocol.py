@@ -369,15 +369,17 @@ class Protocol:
                 tempUID = temp[0]
                 tempMEMUIDS.append(tempUID)
 
-        for trans in block.data:
-            transUIDS = trans.split(", ")
-            for i in transUIDS:
-                transaction = i.replace("'", "")
-                transaction = transaction.replace("[", "")
-                temp = transaction.split(',')
-                tempUID = temp[0]
-                if tempUID not in tempMEMUIDS:
-                    return False
+        transUIDS = block.data.split(", ")
+        for i in transUIDS:
+            print(i)
+            transaction = i.replace("'", "")
+            transaction = transaction.replace("[", "")
+            temp = transaction.split(',')
+            print(temp)
+            tempUID = temp[0]
+            print(tempMEMUIDS)
+            if tempUID not in tempMEMUIDS:
+                return False
 
         return True
 
