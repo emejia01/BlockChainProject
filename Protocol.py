@@ -1,6 +1,6 @@
 from google.cloud import datastore
 from BlockChainProject.Node import Node
-from BlockChainProject.Miner import Miner
+#from BlockChainProject.Miner import Miner
 from BlockChainProject.Block import *
 import os
 
@@ -11,7 +11,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/erikmejia/Desktop/blockch
 class Protocol:
 
     # Stores all the nodes that are on the Network
-    Nodes = []  # TODO: List of nodes pulled from GCP
+    #Nodes = []# TODO: List of nodes pulled from GCP
 
     # Stores a copy of the blockchain
     Blockchain = [] # TODO: Pull from GCP
@@ -28,6 +28,7 @@ class Protocol:
     # if this is not true we do difficulty *= "2.5 minutes" / <the time it actually took>
     def setDifficulty(self):
         # Time in seconds => 150 seconds is 2 mins, datetime subtraction returns time in seconds.
+        self.Blockchain = self.getBlockChain()
         self.Difficulty *= 150 / (self.Blockchain[-5].time - self.Blockchain[-1].time)
         # TODO: post difficulty to GCP
 
@@ -35,17 +36,30 @@ class Protocol:
 
     def POW(self):
         counter = 0
+        self.Nodes = self.getNodes()
+        blocks = self.getMinedBlock()
+
+        block = blocks[0]
+        print("****")
+        for currentBlock in blocks:
+            if len(currentBlock.data) > len(block.data):
+                block = currentBlock
+
         for node in self.Nodes:
-            if node.verify():
+            if node.verify(block, node.UID):
                 counter += 1
             if counter == len(self.Nodes) // 2:
+                print("|||||||||")
+                self.addBlock(block)
+                self.updateMempool(block)
+                #self.clearMinedBlocks()
+
                 return True
         return False
 
 
     # Gets all nodes from the GCP stored as list of Node Objects (this list can include both Nodes and Miners)
-    @staticmethod
-    def getNodes():
+    def getNodes(self):
         # Get Nodes from GCP
         client = datastore.Client()
         query = client.query(kind="Nodes")
@@ -91,6 +105,7 @@ class Protocol:
         # Get Blocks from GCP
         client = datastore.Client()
         query = client.query(kind="Blocks")
+        query.order = ["time"]
         results = list(query.fetch())
 
         # Format GCP data into Block Objects to return
@@ -114,30 +129,33 @@ class Protocol:
         # Get Blocks from GCP
         client = datastore.Client()
         query = client.query(kind="Mined Block")
-        query.order = ["-Transaction Count"]
-        result = list(query.fetch(limit=1))[0]
+        #query.order = ["-Transaction Count"]
+        results = list(query.fetch())
 
-        # Format into Block Object
-        result = dict(result)
-        num, time, nonce, data, previousHash, currentHash = result["Num"], result["Time"], result["Nonce"], result["Data"], result["Previous Hash"], result["Current Hash"]
-        currentBlock = Block(nonce, data, previousHash)  # TODO: change block counter
-        currentBlock.num = num
-        currentBlock.time = time
-        currentBlock.currentHash = currentHash
+        currentBlocks = []
+        for result in results:
+            # Format into Block Object
+            result = dict(result)
+            num, time, nonce, data, previousHash, currentHash = result["num"], result["time"], result["nonce"], result["data"], result["previousHash"], result["currentHash"]
+            currentBlock = Block(nonce, data, previousHash)  # TODO: change block counter
+            currentBlock.num = num
+            currentBlock.time = time
+            currentBlock.currentHash = currentHash
+            currentBlocks.append(currentBlock)
 
-        return currentBlock
+        return currentBlocks
 
     #  Adds the mined block to the end of the blockchain
     #  delete all temp Mined blocks
     @staticmethod
-    def addMinedBlock(blockObj: Block):
+    def addBlock(blockObj: Block):
         # Add Block to GCP
         client = datastore.Client()
-        key = client.key('Blocks', blockObj.num)
+        key = client.key('Blocks', blockObj.currentHash)
         entity = datastore.Entity(key=key)
         entity.update({
             "currentHash": blockObj.currentHash,
-            "data": blockObj.data,
+            "data": str(blockObj.data),
             "nonce": blockObj.nonce,
             "num": blockObj.num,
             "previousHash": blockObj.previousHash,
@@ -155,15 +173,47 @@ class Protocol:
     #  take data from theMinedBlock and remove the transactions from the GCP mempool
     @staticmethod
     def updateMempool(blockObj: Block):
-        blockTransactions = blockObj.data
+        blockTransactions = blockObj.data.split(", ")
+        print(blockTransactions)
         client = datastore.Client()
-        mempoolKeysToDelete = set()
+        mempoolKeysToDelete = []
+
 
         # Result Format: [UID, senderID, RecieverID, Amount, Fee]
-        for transaction in blockTransactions: #results:
-            key = client.key('Mempool', transaction[0])
-            mempoolKeysToDelete.add(key)
 
+        for tempTrans in blockTransactions: #results:
+            transaction = tempTrans.split(',')
+            #print("TRANSACTION: ", transaction)
+            strTrans = transaction[0]
+            strTrans = strTrans.replace("'", "")
+            strTrans = strTrans.replace("[", "")
+            print("---->", strTrans)
+            key = client.key('Mempool', strTrans)
+            mempoolKeysToDelete.append(key)
+        print(mempoolKeysToDelete)
         # Delete corresponding Transaction keys from the Mempool Table
         for key in mempoolKeysToDelete:
             client.delete(key)
+
+    @staticmethod
+    def addMinedBlock(blockObj: Block):
+        # Add Block to GCP
+        client = datastore.Client()
+        key = client.key('Mined Block', blockObj.currentHash)
+        entity = datastore.Entity(key=key)
+        entity.update({
+            "currentHash": blockObj.currentHash,
+            "data": str(blockObj.data),
+            "nonce": blockObj.nonce,
+            "num": blockObj.num,
+            "previousHash": blockObj.previousHash,
+            "time": blockObj.time
+        })
+        client.put(entity)
+
+        # Clear all data from Mined Blocks Table
+        #query = client.query(kind="Mined Block")
+        #results = list(query.fetch())
+
+        #for result in results:
+         #   client.delete(result.key)  # TODO: Test this line

@@ -15,20 +15,14 @@ class Node:
         self.Email = Email
         self.UID = UID
         self.balance = balance
-        self.Blockchain = [] # TODO: Pull from GCP
+        self.Blockchain = Protocol.getBlockChain() # TODO: Pull from GCP
 
 
+    @staticmethod
+    def verify(block, UID):
 
-    def verify(self, block):
-        hashString = ''
-        hashString += block.num
-        hashString += block.time
-        hashString += block.nonce
-        hashString += block.ledger
-        hashString += block.previousHash
-        hashed = sha256(hashString.encode("UTF-8")).hexdigest()
-
-        if hashed.startswith('0' * Protocol.Difficulty):
+        if block.currentHash.startswith('0' * Protocol.Difficulty):
+            print(str(UID) + "Verified Block")
             return True
         return False
 
@@ -45,7 +39,7 @@ class Node:
             "recieverID": recieverID,
             "amount": 1,
             "fee": .02,
-            "data": [transactionUID, self.UID, recieverID, 1, .02]
+            "data": str(transactionUID) + "," + str(self.UID) + "," + str(recieverID) + "," + str(1) + "," + str(.02)
         })
         client.put(entity)
 
