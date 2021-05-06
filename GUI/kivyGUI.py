@@ -335,6 +335,7 @@ def grab6():
     # get all transactions from Mempool table in GCP
     client = datastore.Client()
     query = client.query(kind="Mempool")
+    # query.order = ["created"]
     results = list(query.fetch())
 
     allTransactions = []
@@ -387,8 +388,8 @@ class VisualizerWindow(Screen):
                 self.l2B.text = str(bl.time)
                 self.l3B.text = str(bl.nonce)
                 self.l4B.text = str(bl.data)
-                self.l5B.text = str(bl.previousHash)
-                self.l6B.text = str(bl.currentHash)
+                self.l5B.text = str(bl.previousHash)[0:7] + "..."
+                self.l6B.text = str(bl.currentHash)[0:7] + "..."
 
 
 
@@ -399,6 +400,19 @@ class VisualizerWindow(Screen):
 
 
     def updateMemPool(self,val):
+        self.l1T.text = ''
+        self.l2T.text = ''
+        self.l3T.text = ''
+        self.l4T.text = ''
+        self.l5T.text = ''
+        self.l6T.text = ''
+        self.l7T.text = ''
+        self.l8T.text = ''
+        self.l9T.text = ''
+        self.l10T.text = ''
+
+
+
 
         ls = grab6()
         size = len(ls)
@@ -425,7 +439,7 @@ class VisualizerWindow(Screen):
 
     def on_enter(self, *args):
         self.updateMemPool(1)
-        Clock.schedule_interval(self.updateMemPool, 5)
+        Clock.schedule_interval(self.updateMemPool, 1)
 
 
 
@@ -435,8 +449,12 @@ class VisualizerWindow(Screen):
 
 
 
+
+
 class WindowManager(ScreenManager):
     pass
+
+
 
 
 kv = Builder.load_file("my.kv")
@@ -449,6 +467,7 @@ for screen in screens:
 
 
 sm.current = "welcome"
+
 
 
 class VoterChainApp(App):
