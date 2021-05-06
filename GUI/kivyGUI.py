@@ -14,7 +14,9 @@ from BlockChainProject.Protocol import *
 from hashlib import sha256
 
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/theomanavazian/Desktop/blockchainproject-311018-0932eb94714c.json"
+
+os.environ[
+    "GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/theomanavazian/Desktop/blockchainproject-311018-0932eb94714c.json"
 
 
 def getCurrentNode(email, password):
@@ -37,7 +39,6 @@ def getCurrentNode(email, password):
         return None
 
 
-
 def getBlockByNum(num):
     # Get Blocks from GCP
     client = datastore.Client()
@@ -48,8 +49,9 @@ def getBlockByNum(num):
     # Format GCP data into Block Objects to return
     if results:
         result = dict(results[0])
-        num, time, nonce, data, previousHash, currentHash = result["num"], result["time"], result["nonce"], result["data"], result["previousHash"], result["currentHash"]
-        currentBlock = Block(nonce, data, previousHash) # TODO: change block counter
+        num, time, nonce, data, previousHash, currentHash = result["num"], result["time"], result["nonce"], result[
+            "data"], result["previousHash"], result["currentHash"]
+        currentBlock = Block(nonce, data, previousHash)  # TODO: change block counter
         currentBlock.num = num
         currentBlock.time = time
         currentBlock.currentHash = currentHash
@@ -59,16 +61,14 @@ def getBlockByNum(num):
         return None
 
 
-
-
 class CreateVoterAccountWindow(Screen):
     namee = ObjectProperty(None)
     email = ObjectProperty(None)
     password = ObjectProperty(None)
 
-
     def submitVoter(self):
-        if self.namee.text != "" and self.email.text != "" and self.email.text.count("@") == 1 and self.email.text.count(".") > 0:
+        if self.namee.text != "" and self.email.text != "" and self.email.text.count(
+                "@") == 1 and self.email.text.count(".") > 0:
             if self.password != "":
 
                 # Check DB to see if email is already in use
@@ -108,24 +108,13 @@ class CreateVoterAccountWindow(Screen):
         self.email.text = ""
         self.password.text = ""
         self.namee.text = ""
+
     def segueBack(self):
         sm.current = 'welcome'
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 NODE = Node()
+
 
 class VoterLoginWindow(Screen, EventDispatcher):
     email = ObjectProperty(None)
@@ -158,19 +147,7 @@ class VoterLoginWindow(Screen, EventDispatcher):
         sm.current = 'welcome'
 
 
-
-
-
-
-
-
-
-
-
-
-
 class MainWindow(Screen):
-
     bal = ObjectProperty(None)
     dropdown = ObjectProperty(None)
 
@@ -194,7 +171,6 @@ class MainWindow(Screen):
 
         return False
 
-
     def segueBack(self):
         sm.current = "voterLogin"
 
@@ -211,13 +187,12 @@ class MainWindow(Screen):
             mempoolError()
             return
 
-
         content = FloatLayout()
         self.popup = Popup(title='Are you sure you want to cast this vote? \n this cannot be undone',
-                    content=content,
-                    size_hint=(None, None),
-                    size=(600, 600),
-                    title_align='center')
+                           content=content,
+                           size_hint=(None, None),
+                           size=(600, 600),
+                           title_align='center')
 
         button = Button(text="Yes",
                         size_hint=(0.6, 0.2),
@@ -236,34 +211,20 @@ class MainWindow(Screen):
         else:
             rec = '15b8ec7d599c752a65a324c25558be720a3db5a7f80d20a7340baaa8bb21f64d'
 
-        p.Trasact(NODE.UID,rec)
+        p.Trasact(NODE.UID, rec)
         print(self.selection)
 
     def spinner_clicked(self, value=''):
         self.selection = value
 
 
-
-
-
-
-
-
-
-
-
-
-
 class WelcomeWindow(Screen):
-
     wimg = ObjectProperty(None)
     voterLogin = ObjectProperty(None)
     createAccnt = ObjectProperty(None)
 
-
     def segueVoterLogin(self):
         sm.current = 'voterLogin'
-
 
     def segueCreateAccnt(self):
         sm.current = "createVoter"
@@ -272,65 +233,58 @@ class WelcomeWindow(Screen):
         sm.current = 'visualize'
 
 
-
-
-
-
-
-
-
-
-
 def invalidUser():
     pop = Popup(title='Invalid User',
-                  content=Label(text='User already Exists!'),
-                  size_hint=(None, None), size=(400, 400))
+                content=Label(text='User already Exists!'),
+                size_hint=(None, None), size=(400, 400))
     pop.open()
 
 
 def invalidLogin():
     pop = Popup(title='Invalid Login',
-                  content=Label(text='Invalid username or password.'),
-                  size_hint=(None, None), size=(400, 400))
+                content=Label(text='Invalid username or password.'),
+                size_hint=(None, None), size=(400, 400))
     pop.open()
 
 
 def invalidForm():
     pop = Popup(title='Invalid Form',
-                  content=Label(text='Please fill in all inputs with valid information.'),
-                  size_hint=(None, None), size=(400, 400))
+                content=Label(text='Please fill in all inputs with valid information.'),
+                size_hint=(None, None), size=(400, 400))
 
     pop.open()
 
+
 def notEnoughTokems():
     pop = Popup(title='Not Enough Tokens!',
-                  content=Label(text='You dont have enough Tokens to vote!.'),
-                  size_hint=(None, None), size=(600, 600))
+                content=Label(text='You dont have enough Tokens to vote!.'),
+                size_hint=(None, None), size=(600, 600))
 
     pop.open()
 
 
 def insertError():
     pop = Popup(title='Insert Error',
-                  content=Label(text='Oops! Something went wrong. Try again'),
-                  size_hint=(None, None), size=(600, 600))
+                content=Label(text='Oops! Something went wrong. Try again'),
+                size_hint=(None, None), size=(600, 600))
 
     pop.open()
+
 
 def mempoolError():
     pop = Popup(title='Transactioin Error',
-                  content=Label(text='UID already in Mempool'),
-                  size_hint=(None, None), size=(600, 600))
+                content=Label(text='UID already in Mempool'),
+                size_hint=(None, None), size=(600, 600))
 
     pop.open()
+
 
 def searchError():
     pop = Popup(title='Search Error',
-                  content=Label(text='Block Doesnt Exist'),
-                  size_hint=(None, None), size=(600, 600))
+                content=Label(text='Block Doesnt Exist'),
+                size_hint=(None, None), size=(600, 600))
 
     pop.open()
-
 
 
 
@@ -351,16 +305,15 @@ def grab6():
         transactionAmount = result["amount"]
         fee = result["fee"]
 
-
-        currentTransaction = [str(transactionUID[0:5])+'..  ', str(senderUID[0:5])+'..  ', str(recieverID[0:5])+'..  ', str(transactionAmount)+"  ", fee]
+        currentTransaction = [str(transactionUID[0:5]) + '..  ', str(senderUID[0:5]) + '..  ',
+                              str(recieverID[0:5]) + '..  ', str(transactionAmount) + "  ", fee]
         allTransactions.append(currentTransaction)
 
     return allTransactions
 
 
 class VisualizerWindow(Screen):
-
-    #MEMPOOL LABLES
+    # MEMPOOL LABLES
     l1T = ObjectProperty(None)
     l2T = ObjectProperty(None)
     l3T = ObjectProperty(None)
@@ -372,7 +325,7 @@ class VisualizerWindow(Screen):
     l9T = ObjectProperty(None)
     l10T = ObjectProperty(None)
 
-#BLOCK LABLES
+    # BLOCK LABLES
     l1B = ObjectProperty(None)
     l2B = ObjectProperty(None)
     l3B = ObjectProperty(None)
@@ -380,20 +333,45 @@ class VisualizerWindow(Screen):
     l5B = ObjectProperty(None)
     l6B = ObjectProperty(None)
 
-    #SearchBoxes:
+    # SearchBoxes:
     searchNum = ObjectProperty(None)
 
-
     def searchBlock(self):
-        if self.searchNum.text !='':
+        if self.searchNum.text != '':
             bl = getBlockByNum(int(self.searchNum.text))
+            if not bl:
+                searchError()
+                return()
+            dataS = ''
+
+            if bl.num == 0:
+                dataS = bl.data
+            else:
+                data = bl.data.split(", ")
+                dataD = []
+                headers = "UID, SenderID, RecieverID, Amnt, Fee"
+                dataD.append(headers)
+
+                for tempTrans in data:  # results:
+                    # print("TRANSACTION: ", transaction)
+                    transaction = tempTrans.replace("'", "")
+                    transaction = transaction.replace("[", "")
+                    temp = transaction.split(',')
+                    tempString = "[" + temp[0][:6] + "...," + temp[1][:6] + "..., " + temp[2][:6] + "..., " + temp[3] + ", " +temp[4] + "]"
+
+                    dataD.append(tempString)
+
+
+                for i in dataD:
+                    dataS += i + "\n"
+
             if bl:
                 self.l1B.text = str(bl.num)
                 self.l2B.text = str(bl.time)
                 self.l3B.text = str(bl.nonce)
-                self.l4B.text = str(bl.data)
-                self.l5B.text = str(bl.previousHash)[0:7] + "..."
-                self.l6B.text = str(bl.currentHash)[0:7] + "..."
+                self.l4B.text = str(dataS)
+                self.l5B.text = str(bl.previousHash)[0:24] + "..."
+                self.l6B.text = str(bl.currentHash)[0:24] + "..."
 
 
 
@@ -402,8 +380,7 @@ class VisualizerWindow(Screen):
         else:
             invalidForm()
 
-
-    def updateMemPool(self,val):
+    def updateMemPool(self, val):
         self.l1T.text = ''
         self.l2T.text = ''
         self.l3T.text = ''
@@ -414,9 +391,6 @@ class VisualizerWindow(Screen):
         self.l8T.text = ''
         self.l9T.text = ''
         self.l10T.text = ''
-
-
-
 
         ls = grab6()
         size = len(ls)
@@ -445,33 +419,23 @@ class VisualizerWindow(Screen):
         self.updateMemPool(1)
         Clock.schedule_interval(self.updateMemPool, 1)
 
-
-
     def segueBack(self):
         sm.current = 'welcome'
-
-
-
-
 
 
 class WindowManager(ScreenManager):
     pass
 
 
-
-
 kv = Builder.load_file("my.kv")
 sm = WindowManager()
 
-
-screens = [WelcomeWindow(name="welcome"), VoterLoginWindow(name="voterLogin"), CreateVoterAccountWindow(name="createVoter"), MainWindow(name="main"), VisualizerWindow(name="visualize")]
+screens = [WelcomeWindow(name="welcome"), VoterLoginWindow(name="voterLogin"),
+           CreateVoterAccountWindow(name="createVoter"), MainWindow(name="main"), VisualizerWindow(name="visualize")]
 for screen in screens:
     sm.add_widget(screen)
 
-
 sm.current = "welcome"
-
 
 
 class VoterChainApp(App):
@@ -481,3 +445,4 @@ class VoterChainApp(App):
 
 if __name__ == "__main__":
     VoterChainApp().run()
+
