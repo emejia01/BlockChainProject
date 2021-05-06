@@ -38,6 +38,23 @@ def getCurrentNode(email, password):
     else:
         return None
 
+def getCurrentNodeByUID(UID):
+    # Check DB to see if email is already in use
+    client = datastore.Client()
+    query = client.query(kind="Nodes")
+    query.add_filter("UID", "=", UID)
+    result = list(query.fetch())
+
+    if len(result) == 1:
+        result = dict(result[0])
+        firstName, lastName, email = result["FirstName"], result["LastName"], result["Email"]
+        currentNode = Node(firstName, lastName, email)
+        currentNode.UID = result["UID"]
+        currentNode.balance = result["balance"]
+
+        return currentNode
+    else:
+        return None
 
 def getBlockByNum(num):
     # Get Blocks from GCP
@@ -151,7 +168,11 @@ class MainWindow(Screen):
     bal = ObjectProperty(None)
     dropdown = ObjectProperty(None)
 
+    def updateBalance(self,val):
+        n = getCurrentNodeByUID(NODE.UID)
+        self.bal.text = str(n.balance)
     def on_enter(self, *args):
+        Clock.schedule_interval(self.updateBalance, 3)
         self.bal.text = str(NODE.balance)
 
     # Redundant exists in MINER class, maybe we move to protocol?????

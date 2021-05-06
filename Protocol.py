@@ -196,6 +196,7 @@ class Protocol:
         for result in results:
             client.delete(result.key)  # TODO: Test this line
 
+        print("Block Successfully Mined")
         self.getMempool()
 
     def addMinedBlock(self, blockObj: Block):
@@ -263,6 +264,8 @@ class Protocol:
         while True:
             if len(self.tempMempool) == 0:
                 sleep(10)
+                self.createRandomMempool()
+
                 continue
 
             if nonce == m.hashRate:
@@ -409,6 +412,14 @@ class Protocol:
                 else:
                     self.createRandomMempool()
                     print("Block not added, Block already mined")
+                    # Clear all data from Mined Blocks Table
+                    client = datastore.Client()
+                    query = client.query(kind="Mined Block")
+                    query.add_filter("currrentHash", "=", block.currentHash)
+                    results = list(query.fetch())
+
+                    for result in results:
+                        client.delete(result.key)
                     return False
         return False
 
