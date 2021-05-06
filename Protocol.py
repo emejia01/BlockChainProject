@@ -288,7 +288,7 @@ class Protocol:
                 self.addMinedBlock(newBlock)
                 self.POW()
                 self.createRandomMempool()
-                sleep(5)
+                sleep(2)
 
             nonce += 1
 
@@ -371,13 +371,11 @@ class Protocol:
 
         transUIDS = block.data.split(", ")
         for i in transUIDS:
-            print(i)
             transaction = i.replace("'", "")
             transaction = transaction.replace("[", "")
             temp = transaction.split(',')
-            print(temp)
             tempUID = temp[0]
-            print(tempMEMUIDS)
+
             if tempUID not in tempMEMUIDS:
                 return False
 
@@ -392,7 +390,7 @@ class Protocol:
         try:
             block = blocks[0]
         except:
-            print("Block Already Mined.")
+            print("Block not added, Block already mined")
             return False
         for currentBlock in blocks:
             if len(currentBlock.data) > len(block.data):
@@ -406,9 +404,12 @@ class Protocol:
                     self.addBlock(block)
                     self.updateMempool(block)
                     self.updateBalances(block)
+                    return True
+
                 else:
+                    self.createRandomMempool()
+                    print("Block not added, Block already mined")
                     return False
-                return True
         return False
 
     # Check to see if transactions are still in mempool:
