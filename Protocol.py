@@ -20,6 +20,7 @@ class Protocol:
 
     def __init__(self):
         self.createRandomMempool()
+        self.getBlockChain()
 
 
     # Stores a copy of the blockchain
@@ -86,12 +87,11 @@ class Protocol:
         return miners
 
     #  Gets all Blocks from the GCP stored as list of Block Objects
-    @staticmethod
-    def getBlockChain():
+    def getBlockChain(self):
         # Get Blocks from GCP
         client = datastore.Client()
         query = client.query(kind="Blocks")
-        query.order = ["time"]
+        query.order = ["num"]
         results = list(query.fetch())
 
         # Format GCP data into Block Objects to return
@@ -107,7 +107,7 @@ class Protocol:
 
             blocks.append(currentBlock)
 
-        return blocks
+        self.blockchain = blocks
 
     #  Gets all the Temporary Mined Blocks from the GCP stored as list of Blocks Objects
     #  OR grab Block with most transactions
@@ -137,7 +137,6 @@ class Protocol:
     @staticmethod
     def updateMempool(blockObj: Block):
         blockTransactions = blockObj.data.split(", ")
-        print(blockTransactions)
         client = datastore.Client()
         mempoolKeysToDelete = []
 
@@ -152,7 +151,7 @@ class Protocol:
             print("---->", strTrans)
             key = client.key('Mempool', strTrans)
             mempoolKeysToDelete.append(key)
-        print(mempoolKeysToDelete)
+        # print(mempoolKeysToDelete)
         # Delete corresponding Transaction keys from the Mempool Table
         for key in mempoolKeysToDelete:
             client.delete(key)
@@ -214,12 +213,6 @@ class Protocol:
         })
         client.put(entity)
 
-        # Clear all data from Mined Blocks Table
-        # query = client.query(kind="Mined Block")
-        # results = list(query.fetch())
-
-        # for result in results:
-        #   client.delete(result.key)  # TODO: Test this line
 
     ####
     #### MINER METHODS
@@ -230,6 +223,7 @@ class Protocol:
     # [transactionUID, self.UID, recieverID, self.balance]
     def getMempool(self):
         # get all transactions from Mempool table in GCP
+        self.getBlockChain()
         client = datastore.Client()
         query = client.query(kind="Mempool")
         results = list(query.fetch())
@@ -285,13 +279,15 @@ class Protocol:
             newBlock = Block(data=data, previousHash=prevHash, nonce=nonce)
             newBlock.time = time
             newBlock.num = blockNum
+            newBlock.previousHash = self.blockchain[-1].currentHash
             newBlock.getCurrentHash()
-            print(newBlock.currentHash)
+            print("Generating Hash...: ", newBlock.currentHash)
 
             if Node.verify(newBlock, m.UID):
-                self.createRandomMempool()
+
                 self.addMinedBlock(newBlock)
                 self.POW()
+                self.createRandomMempool()
                 sleep(5)
 
             nonce += 1
@@ -354,6 +350,36 @@ class Protocol:
 
             client.put(entity3)
 
+    def transStillInMempool(self, block):
+        # get all transactions from Mempool table in GCP
+        client = datastore.Client()
+        query = client.query(kind="Mempool")
+        results = list(query.fetch())
+
+        tempMEMUIDS = []
+        for result in results:
+            result = dict(result)
+            data = result["data"]
+
+            data = data.split(", ")
+            for i in data:
+                transaction = i.replace("'", "")
+                transaction = transaction.replace("[", "")
+                temp = transaction.split(',')
+                tempUID = temp[0]
+                tempMEMUIDS.append(tempUID)
+
+        for trans in block.data:
+            transUIDS = trans.split(", ")
+            for i in transUIDS:
+                transaction = i.replace("'", "")
+                transaction = transaction.replace("[", "")
+                temp = transaction.split(',')
+                tempUID = temp[0]
+                if tempUID not in tempMEMUIDS:
+                    return False
+
+        return True
 
 
     def POW(self):
@@ -361,7 +387,11 @@ class Protocol:
         self.Nodes = self.getNodes()
         blocks = self.getMinedBlock()
 
-        block = blocks[0]
+        try:
+            block = blocks[0]
+        except:
+            print("Block Already Mined.")
+            return False
         for currentBlock in blocks:
             if len(currentBlock.data) > len(block.data):
                 block = currentBlock
@@ -370,9 +400,13 @@ class Protocol:
             if node.verify(block, node.UID):
                 counter += 1
             if counter == len(self.Nodes) // 2:
-                self.addBlock(block)
-                self.updateMempool(block)
-                self.updateBalances(block)
-
+                if self.transStillInMempool(block):
+                    self.addBlock(block)
+                    self.updateMempool(block)
+                    self.updateBalances(block)
+                else:
+                    return False
                 return True
         return False
+
+    # Check to see if transactions are still in mempool:
