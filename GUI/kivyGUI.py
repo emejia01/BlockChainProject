@@ -1,3 +1,6 @@
+# This file handles the actual client, most of the functions here are implemented as basic GUI functionality
+# things like validation and popup errors etc.
+
 from kivy.app import App
 from kivy.event import EventDispatcher
 from kivy.lang import Builder
@@ -19,6 +22,7 @@ os.environ[
     "GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/theomanavazian/Desktop/blockchainproject-311018-0932eb94714c.json"
 
 
+# returns the information from the current NODE so we can display it on the accuont page. uses Email and Password
 def getCurrentNode(email, password):
     # Check DB to see if email is already in use
     client = datastore.Client()
@@ -38,6 +42,9 @@ def getCurrentNode(email, password):
     else:
         return None
 
+
+# does the same as the above function however it takes the UID. we needed this because KIVY is very werid with transferring
+# Data between windows so we thought it would just be easier to search by the UID while we dont have access to a username and password
 def getCurrentNodeByUID(UID):
     # Check DB to see if email is already in use
     client = datastore.Client()
@@ -56,6 +63,8 @@ def getCurrentNodeByUID(UID):
     else:
         return None
 
+
+# function that searches for a block based on the number it is
 def getBlockByNum(num):
     # Get Blocks from GCP
     client = datastore.Client()
@@ -78,11 +87,13 @@ def getBlockByNum(num):
         return None
 
 
+# each class here handles a different screen on the GUI, this is the Create voter account screen
 class CreateVoterAccountWindow(Screen):
     namee = ObjectProperty(None)
     email = ObjectProperty(None)
     password = ObjectProperty(None)
 
+    # creates a voter account and stores the information on GCP
     def submitVoter(self):
         if self.namee.text != "" and self.email.text != "" and self.email.text.count(
                 "@") == 1 and self.email.text.count(".") > 0:
@@ -121,22 +132,27 @@ class CreateVoterAccountWindow(Screen):
         else:
             invalidForm()
 
+    # resets the fields
     def reset(self):
         self.email.text = ""
         self.password.text = ""
         self.namee.text = ""
 
+    # handles the back button at the top left corner of the screen
     def segueBack(self):
         sm.current = 'welcome'
 
 
+# a tempoorary node object that will help us transfer data between screens
 NODE = Node()
 
 
+# Voter login screen
 class VoterLoginWindow(Screen, EventDispatcher):
     email = ObjectProperty(None)
     password = ObjectProperty(None)
 
+    # handles the loogin button, and gets the current Nodes accuont information
     def loginBtn(self):
         n = getCurrentNode(self.email.text, self.password.text)
 
@@ -152,30 +168,38 @@ class VoterLoginWindow(Screen, EventDispatcher):
         else:
             invalidLogin()
 
+    # segues to the create screen
     def createBtn(self):
         self.reset()
         sm.current = "createVoter"
 
+    # resets the fields
     def reset(self):
         self.email.text = ""
         self.password.text = ""
 
+    # handles the back button
     def segueBack(self):
         sm.current = 'welcome'
 
 
+# main window, the accuont window after users sign in.
 class MainWindow(Screen):
     bal = ObjectProperty(None)
     dropdown = ObjectProperty(None)
 
-    def updateBalance(self,val):
+    # we call update balance to display the current balance of the user
+    def updateBalance(self, val):
         n = getCurrentNodeByUID(NODE.UID)
         self.bal.text = str(n.balance)
+
+    # on enter is an overrride function in KIVY that gets executed as soon as the screen gets entered.
+    # we have a loop running every 3 seconds that checks for upddates on the user balance
     def on_enter(self, *args):
         Clock.schedule_interval(self.updateBalance, 3)
         self.bal.text = str(NODE.balance)
 
-    # Redundant exists in MINER class, maybe we move to protocol?????
+    # Checks to see if a user already has a transactioon in the mempool. if they do they cant vote again.
     def isInMempool(self):
         # get all transactions from Mempool table in GCP
         client = datastore.Client()
@@ -195,6 +219,7 @@ class MainWindow(Screen):
     def segueBack(self):
         sm.current = "voterLogin"
 
+    # handles submitting a vote if the voter isnt allowed to vote it will account for that
     def submitVote(self):
 
         inMempool = self.isInMempool()
@@ -223,6 +248,7 @@ class MainWindow(Screen):
         content.add_widget(button)
         self.popup.open()
 
+    # if the vote is allowedd to be made, we create a transaction to the mempoool
     def createTransaction(self, val):
         p = Protocol()
 
@@ -235,10 +261,13 @@ class MainWindow(Screen):
         p.Trasact(NODE.UID, rec)
         print(self.selection)
 
+    # A spinner is just a fancy name for a dropdown menu, this function handles the data that was selected
     def spinner_clicked(self, value=''):
         self.selection = value
 
 
+# Welcome winddow is the first window we see when we start the GUI
+# just handles the segues to the next screens
 class WelcomeWindow(Screen):
     wimg = ObjectProperty(None)
     voterLogin = ObjectProperty(None)
@@ -254,6 +283,8 @@ class WelcomeWindow(Screen):
         sm.current = 'visualize'
 
 
+#########
+# the next few functions are pupups that handle certain errors.
 def invalidUser():
     pop = Popup(title='Invalid User',
                 content=Label(text='User already Exists!'),
@@ -308,9 +339,10 @@ def searchError():
     pop.open()
 
 
+############
 
-
-def grab6():
+# Grabs the last the mempool so we can display it in the Visualzer screen
+def grab():
     # get all transactions from Mempool table in GCP
     client = datastore.Client()
     query = client.query(kind="Mempool")
@@ -333,6 +365,7 @@ def grab6():
     return allTransactions
 
 
+# Handles the visualizer screen
 class VisualizerWindow(Screen):
     # MEMPOOL LABLES
     l1T = ObjectProperty(None)
@@ -357,12 +390,13 @@ class VisualizerWindow(Screen):
     # SearchBoxes:
     searchNum = ObjectProperty(None)
 
+    # Searches for the block, calls getBlocByNum()
     def searchBlock(self):
         if self.searchNum.text != '':
             bl = getBlockByNum(int(self.searchNum.text))
             if not bl:
                 searchError()
-                return()
+                return ()
             dataS = ''
 
             if bl.num == 0:
@@ -378,10 +412,10 @@ class VisualizerWindow(Screen):
                     transaction = tempTrans.replace("'", "")
                     transaction = transaction.replace("[", "")
                     temp = transaction.split(',')
-                    tempString = "[" + temp[0][:6] + "...," + temp[1][:6] + "..., " + temp[2][:6] + "..., " + temp[3] + ", " +temp[4] + "]"
+                    tempString = "[" + temp[0][:6] + "...," + temp[1][:6] + "..., " + temp[2][:6] + "..., " + temp[
+                        3] + ", " + temp[4] + "]"
 
                     dataD.append(tempString)
-
 
                 for i in dataD:
                     dataS += i + "\n"
@@ -401,6 +435,7 @@ class VisualizerWindow(Screen):
         else:
             invalidForm()
 
+    # updates the mempool in the visualizer
     def updateMemPool(self, val):
         self.l1T.text = ''
         self.l2T.text = ''
@@ -413,7 +448,7 @@ class VisualizerWindow(Screen):
         self.l9T.text = ''
         self.l10T.text = ''
 
-        ls = grab6()
+        ls = grab()
         size = len(ls)
         if size > 0:
             self.l1T.text = str(ls[-1])
@@ -436,6 +471,7 @@ class VisualizerWindow(Screen):
         if size > 9:
             self.l10T.text = str(ls[-10])
 
+    # this on enter runs updateMempool() every 1 second, thats what is responsible for the live update oof the visuazlized mempool
     def on_enter(self, *args):
         self.updateMemPool(1)
         Clock.schedule_interval(self.updateMemPool, 1)
@@ -444,13 +480,16 @@ class VisualizerWindow(Screen):
         sm.current = 'welcome'
 
 
+# manages all the Screens we have
 class WindowManager(ScreenManager):
     pass
 
 
+# imports the my.kv file we have for the configuration of the elements on each screen
 kv = Builder.load_file("my.kv")
 sm = WindowManager()
 
+# this is how we add all our screens to our GUI, each gets a name that is a UID
 screens = [WelcomeWindow(name="welcome"), VoterLoginWindow(name="voterLogin"),
            CreateVoterAccountWindow(name="createVoter"), MainWindow(name="main"), VisualizerWindow(name="visualize")]
 for screen in screens:
@@ -459,6 +498,7 @@ for screen in screens:
 sm.current = "welcome"
 
 
+# this is how we build our GUI and run it.
 class VoterChainApp(App):
     def build(self):
         return sm
@@ -466,4 +506,3 @@ class VoterChainApp(App):
 
 if __name__ == "__main__":
     VoterChainApp().run()
-

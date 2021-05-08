@@ -1,3 +1,8 @@
+#
+# This file handles all the calls and acts a hub for which all our helper classes connect to.
+# This class brings functionality to our project
+#
+
 from google.cloud import datastore
 
 from BlockChainProject.Block import Block
@@ -12,34 +17,29 @@ from random import randint
 import os
 
 # Create OS environment variable for GCP Credential
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/theomanavazian/Desktop/blockchainproject-311018-0932eb94714c.json"
+os.environ[
+    "GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/theomanavazian/Desktop/blockchainproject-311018-0932eb94714c.json"
 
 
 # Class that makes all the magic happen, connect to GCP and talk to all the classes
 class Protocol:
 
+    # When we create a Protocol Object we want to update the mempool and the blockcahin.
     def __init__(self):
         self.createRandomMempool()
         self.getBlockChain()
 
-
     # Stores a copy of the blockchain
-    Blockchain = []  # TODO: Pull from GCP
+    Blockchain = []
 
+    # Difficulty level for mining a mew block
+    Difficulty = 1
 
-    Difficulty = 1  # TODO: CALCULATE from TOTALHahsrate and post to GCP
-
-    # The Total Network Hashrate, Honestly this field doesnt really do anything, its more for show.
-    TotalNetworkHashRate = 0  # TODO: calculate total NetworkHashRate every 5 blocks, then update field on GCP
-
-
+    # sets the difficulty based on how long it took to mine the last 5 blocks
     def setDifficulty(self):
         # Time in seconds => 150 seconds is 2 mins, datetime subtraction returns time in seconds.
         self.Blockchain = self.getBlockChain()
         self.Difficulty *= 150 / (self.Blockchain[-5].time - self.Blockchain[-1].time)
-        # TODO: post difficulty to GCP
-
-
 
     # Gets all nodes from the GCP stored as list of Node Objects (this list can include both Nodes and Miners)
     def getNodes(self):
@@ -156,6 +156,7 @@ class Protocol:
         for key in mempoolKeysToDelete:
             client.delete(key)
 
+    # Function that creates a transaction to be storerd in the mempoool.
     def Trasact(self, senderID, recieverID):
 
         transactionUID = sha256(str(datetime.now()).encode("UTF-8")).hexdigest()
@@ -199,6 +200,8 @@ class Protocol:
         print("Block Successfully Mined")
         self.getMempool()
 
+    # Adds a "Candidate Block". this is just a block that has been mined but hasnt been added to the Blockchain yet.
+    # once the candidate block get verified, it gets added to the blockchain
     def addMinedBlock(self, blockObj: Block):
         # Add Block to GCP
         client = datastore.Client()
@@ -214,14 +217,7 @@ class Protocol:
         })
         client.put(entity)
 
-
-    ####
-    #### MINER METHODS
-    ####
-
-
-
-    # [transactionUID, self.UID, recieverID, self.balance]
+    # Refreses the current mempool so the miner akways has the most up to date version of it
     def getMempool(self):
         # get all transactions from Mempool table in GCP
         self.getBlockChain()
@@ -243,7 +239,7 @@ class Protocol:
 
         self.MEMPOOL = allTransactions
 
-    # Creates temp mempool of random size of 3 - 5 transactions
+    # Creates temp mempool for the miner, of random size of 3 - 5 transactions
     def createRandomMempool(self):
         self.getMempool()
         if len(self.MEMPOOL) < 3:
@@ -255,26 +251,12 @@ class Protocol:
         else:
             self.tempMempool = self.MEMPOOL[:randomSize]
 
-
-
-    # make it so a miners hash rate updates every 5 blocks
+    # This is the function that actuall mines based on the current mempool and hash rate etc. Takes Miner Object as a paramater
     def mine(self, m):
         nonce = 1
 
         while True:
             if len(self.tempMempool) == 0:
-                # Clear all data from Mined Blocks Table
-                client = datastore.Client()
-                query = client.query(kind="Mined Block")
-                results = list(query.fetch())
-                for result in results:
-                    client.delete(result.key)# Clear all data from Mined Blocks Table
-                    client = datastore.Client()
-                    query = client.query(kind="Mined Block")
-                    results = list(query.fetch())
-                    for result in results:
-                        client.delete(result.key)
-
                 sleep(10)
                 self.createRandomMempool()
 
@@ -299,7 +281,6 @@ class Protocol:
             print("Generating Hash...: ", newBlock.currentHash)
 
             if Node.verify(newBlock, m.UID):
-
                 self.addMinedBlock(newBlock)
                 self.POW()
                 self.createRandomMempool()
@@ -309,12 +290,11 @@ class Protocol:
 
         return
 
-
+    # Updates all the account balances of the Nodes, called when a new block is added to the blockchain.
     def updateBalances(self, block):
         blockTransactions = block.data.split(", ")
 
         for tempTrans in blockTransactions:
-
             transaction = tempTrans.split(',')
             strTrans1 = transaction[1]
             strTrans1 = strTrans1.replace("'", "")
@@ -323,13 +303,10 @@ class Protocol:
             client = datastore.Client()
 
             with client.transaction():
-                key = client.key("Nodes",strTrans1)
+                key = client.key("Nodes", strTrans1)
                 entity = client.get(key)
                 entity['balance'] = str(int(entity['balance']) - 1)
                 client.put(entity)
-
-
-
 
         counter = 0
         counter2 = 0
@@ -339,17 +316,18 @@ class Protocol:
             strTrans2 = strTrans2.replace("'", "")
             strTrans2 = strTrans2.replace("[", "")
 
-
             if strTrans2 == '15b8ec7d599c752a65a324c25558be720a3db5a7f80d20a7340baaa8bb21f64d':
                 counter += 1
             else:
-                counter2 +=1
+                counter2 += 1
 
         client = datastore.Client()
 
         with client.transaction():
-
-            key2 = client.key("Nodes",'15b8ec7d599c752a65a324c25558be720a3db5a7f80d20a7340baaa8bb21f64d')
+            # these keys are hard coded to the accounts of BITCOIN and ETHEREUM.
+            # The reason for this is this is the only campaign we have running currently. a real world application would
+            # Implement this differently, but for now this works just as well because this address will never change
+            key2 = client.key("Nodes", '15b8ec7d599c752a65a324c25558be720a3db5a7f80d20a7340baaa8bb21f64d')
             entity2 = client.get(key2)
             entity2['balance'] = int(entity2['balance']) + counter
 
@@ -359,12 +337,14 @@ class Protocol:
 
         with client.transaction():
 
-            key3 = client.key("Nodes",'124d0d8d47c3f4eddfa27c8004057d9f57fe52b76ec7e6c2c27d7c570ef984c1')
+            key3 = client.key("Nodes", '124d0d8d47c3f4eddfa27c8004057d9f57fe52b76ec7e6c2c27d7c570ef984c1')
             entity3 = client.get(key3)
             entity3['balance'] = int(entity3['balance']) + counter2
 
             client.put(entity3)
 
+    # returns a boolean to see if a list of transactions are still in the mempool
+    # we use this to handdle concurrent mining so that votes doont get cuonted twice.
     def transStillInMempool(self, block):
         # get all transactions from Mempool table in GCP
         client = datastore.Client()
@@ -396,7 +376,7 @@ class Protocol:
 
         return True
 
-
+    # Proof of work, just calls verify on all the nodes and handles adding the block
     def POW(self):
         counter = 0
         self.Nodes = self.getNodes()
@@ -428,4 +408,3 @@ class Protocol:
                     return False
         return False
 
-    # Check to see if transactions are still in mempool:

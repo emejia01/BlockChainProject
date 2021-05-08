@@ -6,5 +6,8 @@ m = Miner()
 m.hashRate = 100000
 protocol = Protocol()
 
+
+
+
 protocol.mine(m)
 

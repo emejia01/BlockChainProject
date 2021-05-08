@@ -1,3 +1,5 @@
+# Class defenition for a Block
+
 from datetime import datetime
 from hashlib import sha256
 
@@ -13,6 +15,7 @@ class Block:
         self.previousHash = previousHash
         self.currentHash = None
 
+    # generates the current hash of the block whenever it is made
     def getCurrentHash(self):
         hashString = ''
         hashString += str(self.num)

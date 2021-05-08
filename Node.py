@@ -1,3 +1,5 @@
+#Node class defines all the attributes of a Node (Voter account)
+
 from hashlib import sha256
 from datetime import datetime
 from google.cloud import datastore
@@ -22,6 +24,7 @@ class Node:
 
 
     @staticmethod
+    # Each node has a verify method which gets called when a new block is trying to be mined
     def verify(block, UID):
 
         if block.currentHash.startswith('0' * 1):
@@ -43,6 +46,7 @@ class Node:
 
 
     @staticmethod
+    # returns the current blockchain for each node to store it
     def getBlockChain():
         # Get Blocks from GCP
         client = datastore.Client()
